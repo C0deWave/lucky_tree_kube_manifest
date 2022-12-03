@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name:  luckytree
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: luckytree-rq
+  namespace: luckytree
+spec: 
+  hard:
+    requests.memory: 16Gi
+    limits.memory: 16Gi
+---
