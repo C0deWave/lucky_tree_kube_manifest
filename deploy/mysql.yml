@@ -32,12 +32,12 @@ spec:
         volumeMounts:
         - mountPath: "/var/lib/mysql"
           name: mysql-volume
-        volumes:
-        - name: mysql-volume
-          persistentVolumeClaim:
-          claimName: mysql-pvc
         ports:
         - containerPort: 3306
+      volumes:
+      - name: mysql-volume
+        persistentVolumeClaim:
+          claimName: mysql-pvc
 ---
 apiVersion: v1
 kind: PersistentVolume
