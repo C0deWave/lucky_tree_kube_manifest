@@ -68,10 +68,10 @@ kind: PersistentVolumeClaim
 metadata:
   name: mysql-pvc
 spec:
+  volumeMode: Filesystem
   resources:
     requests:
       storage: 20Gi
   volumeName: mysql-pv
-  storageClassName: "local-storage"
   accessModes:
     - ReadWriteOnce
