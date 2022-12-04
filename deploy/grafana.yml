@@ -14,7 +14,9 @@ spec:
     metadata:
       labels:
         app: grafana
-    spec:
+    spec:  
+      securityContext:
+        runAsUser: 104
       containers:
         - name: grafana
           image: grafana/grafana:9.2.6
@@ -27,7 +29,7 @@ spec:
             name: grafana-log
           resources:
             limits:
-              memory: "1Gi"
+              memory: "500Mi"
           ports:
             - containerPort: 3000
       volumes:
