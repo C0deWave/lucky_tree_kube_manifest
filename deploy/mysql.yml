@@ -53,6 +53,15 @@ spec:
   storageClassName: local-storage
   local:
     path: /disk01/mysql_data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - luckytree-study
+  
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
