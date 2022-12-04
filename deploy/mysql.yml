@@ -72,5 +72,6 @@ spec:
     requests:
       storage: 20Gi
   volumeName: mysql-pv
+  storageClassName: ""
   accessModes:
     - ReadWriteOnce
