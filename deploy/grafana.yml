@@ -27,7 +27,7 @@ spec:
             name: grafana-log
           resources:
             limits:
-              memory: "500Mi"
+              memory: "1Gi"
           ports:
             - containerPort: 3000
       volumes:
