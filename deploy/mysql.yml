@@ -45,7 +45,7 @@ metadata:
   name: mysql-pv
 spec:
   capacity:
-    storage: 20Gi
+    storage: 21Gi
   volumeMode: Filesystem
   accessModes:
   - ReadWriteMany
