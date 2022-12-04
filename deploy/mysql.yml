@@ -81,6 +81,7 @@ kind: Service
 metadata:
   name: mysql-service
 spec:
+  type: NodePort
   selector:
     app: mysql
   ports:
