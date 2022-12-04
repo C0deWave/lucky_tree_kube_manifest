@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
-  name: replicaset-grafana
+  name: grafana
   labels:
     app: grafana
 spec:
