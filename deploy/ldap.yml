@@ -151,3 +151,13 @@ data:
   LDAP_SSL_HELPER_PREFIX: "ldap"
 ---
 
+apiVersion: v1
+kind: Service
+metadata:
+  name: ldap-service 
+spec:
+  selector:
+    app: ldap
+  ports:
+  - port: 389
+    targetPort: 389
