@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: phpldapadmin
+  labels:
+    app: phpldapadmin
+spec:
+  # modify replicas according to your case
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpldapadmin
+  template:
+    metadata:
+      labels:
+        app: phpldapadmin
+    spec:  
+      containers:
+        - name: phpldapadmin
+          image: osixia/phpldapadmin:0.9.0
+          env:
+            - name: PHPLDAPADMIN_LDAP_HOSTS
+              value: "auth.luckytree.net"
+            - name: PHPLDAPADMIN_HTTPS
+              value: "false"
+          resources:
+            limits:
+              memory: "500Mi"
+          ports:
+            - containerPort: 80
