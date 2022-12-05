@@ -20,7 +20,7 @@ spec:
           image: osixia/phpldapadmin:0.9.0
           env:
             - name: PHPLDAPADMIN_LDAP_HOSTS
-              value: "auth.luckytree.net"
+              value: "ldap.luckytree.com"
             - name: PHPLDAPADMIN_HTTPS
               value: "false"
           resources:
