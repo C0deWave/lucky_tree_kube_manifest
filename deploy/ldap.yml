@@ -17,10 +17,11 @@ spec:
       labels:
         app: ldap
     spec:
-      hostname: "auth/.luckytree/.net"
-      subdomain: "auth.luckytree.net"
+      hostname: "luckytree"
+      subdomain: "luckytree"
       containers:     
       - name: ldap
+        image: osixia/openldap:1.5.0
         envFrom:
         - configMapRef:
             name: ldap-config
@@ -37,7 +38,6 @@ spec:
                 key:  LDAP_CONFIG_PASSWORD
         stdin: true
         tty: true
-        image: osixia/openldap:1.5.0
         resources:
           limits:
             memory: "500Mi"
