@@ -90,6 +90,7 @@ spec:
     requests:
       storage: 4.9Gi
   volumeName: ldapdata-pv
+  storageClassName: local-storage
   accessModes:
     - ReadWriteOnce
 ---
@@ -126,6 +127,7 @@ spec:
     requests:
       storage: 0.9Gi
   volumeName: ldapconfig-pv
+  storageClassName: local-storage
   accessModes:
     - ReadWriteOnce
 ---
