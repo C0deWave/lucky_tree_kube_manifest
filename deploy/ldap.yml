@@ -1,0 +1,151 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ldap
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: ldap
+  template:
+    metadata:
+      labels:
+        app: ldap
+    spec:
+      hostname: "auth.luckytree.net"
+      subdomain: "auth.luckytree.net"
+      containers:     
+      - name: ldap
+        envFrom:
+        - configMapRef:
+            name: ldap-config
+        env:
+          - name:  LDAP_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name:  ldap-secret
+                key:  LDAP_ADMIN_PASSWORD
+          - name:  LDAP_CONFIG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name:  ldap-secret
+                key:  LDAP_CONFIG_PASSWORD
+        stdin: true
+        tty: true
+        image: osixia/openldap:1.5.0
+        resources:
+          limits:
+            memory: "500Mi"
+        volumeMounts:
+        - mountPath: "/var/lib/ldap"
+          name: ldapdata-volume
+        - mountPath: "/etc/ldap/slapd.d"
+          name: ldapconfig-volume
+        ports:
+        - containerPort: 389
+        - containerPort: 636
+      volumes:
+      - name: ldapdata-volume
+        persistentVolumeClaim:
+          claimName: ldapdata-pvc
+      - name: ldapconfig-volume
+        persistentVolumeClaim:
+          claimName: ldapconfig-pvc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ldapdata-pv
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /disk01/ldap/ldap_data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - luckytree-study
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ldapdata-pvc
+spec:
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 4.9Gi
+  volumeName: ldapdata-pv
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ldapconfig-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /disk01/ldap/ldap_config
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - luckytree-study
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ldapconfig-pvc
+spec:
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 0.9Gi
+  volumeName: ldapconfig-pv
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ldap-config
+data:
+  LDAP_LOG_LEVEL: "256"
+  LDAP_ORGANISATION: "luckytree.net"
+  LDAP_DOMAIN: "auth.luckytree.net"
+  LDAP_BASE_DN: ""
+  LDAP_RFC2307BIS_SCHEMA: "false"
+  LDAP_BACKEND: "mdb"
+  LDAP_TLS_ENFORCE: "false"
+  LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
+  LDAP_TLS_PROTOCOL_MIN: "3.1"
+  LDAP_TLS_VERIFY_CLIENT: "demand"
+  KEEP_EXISTING_CONFIG: "true"
+  LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
+  LDAP_SSL_HELPER_PREFIX: "ldap"
+---
+
