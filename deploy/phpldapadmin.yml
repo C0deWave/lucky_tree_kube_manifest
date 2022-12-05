@@ -28,3 +28,17 @@ spec:
               memory: "500Mi"
           ports:
             - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpldapadmin-service
+spec:
+  type: NodePort
+  selector:
+    app: phpldapadmin
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30005
+    
