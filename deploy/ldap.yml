@@ -16,10 +16,24 @@ spec:
     metadata:
       labels:
         app: ldap
+        web: phpldapadmin 
     spec:
       hostname: "luckytree"
       subdomain: "luckytree"
-      containers:     
+      containers:  
+      - name: phpldapadmin
+        image: osixia/phpldapadmin:0.9.0
+        env:
+          - name: PHPLDAPADMIN_LDAP_HOSTS
+            value: "localhost"
+            # value: "ldap.luckytree.com"
+          - name: PHPLDAPADMIN_HTTPS
+            value: "false"
+        resources:
+          limits:
+            memory: "500Mi"
+        ports:
+          - containerPort: 80   
       - name: ldap
         image: osixia/openldap:1.5.0
         envFrom:
@@ -161,3 +175,16 @@ spec:
   ports:
   - port: 389
     targetPort: 389
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpldapadmin-service
+spec:
+  type: NodePort
+  selector:
+    app: phpldapadmin
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30005
