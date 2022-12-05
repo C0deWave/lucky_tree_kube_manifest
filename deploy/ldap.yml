@@ -17,7 +17,7 @@ spec:
       labels:
         app: ldap
     spec:
-      hostname: "auth.luckytree.net"
+      hostname: "auth/.luckytree/.net"
       subdomain: "auth.luckytree.net"
       containers:     
       - name: ldap
