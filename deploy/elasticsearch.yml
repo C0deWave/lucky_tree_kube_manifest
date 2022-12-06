@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elk
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: elk
+  template:
+    metadata:
+      labels:
+        app: elk
+    spec:
+      containers:
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana:7.17.7
+        resources:
+          limits:
+            memory: "1Gi" 
+        envFrom:
+        - configMapRef:
+            name: kibana-config
+        volumeMounts:
+        - mountPath: "/usr/share/kibana/config/"
+          name: kibana-volume
+        ports:
+        - containerPort: 5601
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
+        resources:
+          limits:
+            memory: "5Gi"
+        envFrom:
+        - configMapRef:
+            name: elasticsearch-config
+        volumeMounts:
+        - mountPath: "/usr/share/elasticsearch/data"
+          name: elk-volume
+        ports:
+        - containerPort: 9200
+      volumes:
+      - name: elk-volume
+        persistentVolumeClaim:
+          claimName: elk-pvc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elk-pv
+spec:
+  capacity:
+    storage: 101Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /disk01/elasticsearch
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - luckytree-study
+  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elk-pvc
+spec:
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: elk-pv
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+data:
+  node.name: es01
+  cluster.name: es-docker-cluster
+  cluster.initial_master_nodes: es01
+  bootstrap.memory_lock: "true"
+  ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kibana-pv
+spec:
+  capacity:
+    storage: 11Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /disk01/kibana
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - luckytree-study
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kibana-pvc
+spec:
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: kibana-pv
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kibana-config
+data:
+  SERVER_NAME: kibana.luckytree.org
+  ELASTICSEARCH_HOSTS: '["http://localhost:9200"]'
