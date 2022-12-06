@@ -48,6 +48,9 @@ spec:
       - name: elk-volume
         persistentVolumeClaim:
           claimName: elk-pvc
+      - name: kibana-volume
+        persistentVolumeClaim:
+          claimName: kibana-pvc
 ---
 apiVersion: v1
 kind: PersistentVolume
