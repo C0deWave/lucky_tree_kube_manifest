@@ -17,17 +17,6 @@ spec:
       labels:
         app: elk
     spec:
-      nodeSets:
-      - name: default
-        count: 1
-        podTemplate:
-          spec:
-            initContainers:
-            - name: sysctl
-              securityContext:
-                privileged: true
-                runAsUser: 0
-              command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
       containers:
       - name: kibana
         image: docker.elastic.co/kibana/kibana:7.17.7
@@ -46,7 +35,7 @@ spec:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
         resources:
           limits:
-            memory: "5Gi"
+            memory: "10Gi"
         envFrom:
         - configMapRef:
             name: elasticsearch-config
@@ -157,3 +146,33 @@ metadata:
 data:
   SERVER_NAME: kibana.luckytree.org
   ELASTICSEARCH_HOSTS: '["http://localhost:9200"]'
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    k8s-app: sysctl-conf
+  name: sysctl-conf
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: sysctl-conf
+    spec:
+      containers:
+      - command:
+        - sh
+        - -c
+        - sysctl -w vm.max_map_count=262166 && while true; do sleep 86400; done
+        image: busybox:1.26.2
+        name: sysctl-conf
+        resources:
+          limits:
+            cpu: 10m
+            memory: 50Mi
+          requests:
+            cpu: 10m
+            memory: 50Mi
+        securityContext:
+          privileged: true
+      terminationGracePeriodSeconds: 1
