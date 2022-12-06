@@ -17,6 +17,12 @@ spec:
       labels:
         app: elk
     spec:
+      initContainers:
+      - name: sysctl
+        securityContext:
+          privileged: true
+          runAsUser: 0
+        command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
       containers:
       - name: kibana
         image: docker.elastic.co/kibana/kibana:7.17.7
@@ -57,12 +63,6 @@ kind: PersistentVolume
 metadata:
   name: elk-pv
 spec:
-  initContainers:
-  - name: sysctl
-    securityContext:
-      privileged: true
-      runAsUser: 0
-    command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
   capacity:
     storage: 101Gi
   volumeMode: Filesystem
