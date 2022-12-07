@@ -33,10 +33,10 @@ spec:
       volumes:
       - name: prometheus-volume
         persistentVolumeClaim:
-          claimName: prometheus-pvc
+          claimName:  promethus-pvc
       - name: prometheus-config-volume
         persistentVolumeClaim:
-          claimName: prometheus-config-pvc
+          claimName: promethus-config-pvc
 ---
 apiVersion: v1
 kind: PersistentVolume
