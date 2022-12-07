@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: promethus
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: promethus
+  template:
+    metadata:
+      labels:
+        app: promethus
+    spec:
+      containers:
+      - name: promethus
+        image: prom/prometheus:v2.40.3
+        resources:
+          limits:
+            memory: "1Gi"
+        volumeMounts:
+        - name: prometheus-volume
+          mountPath: "/prometheus"
+        - name: prometheus-config-volume
+          mountPath: /etc/prometheus/
+        ports:
+        - containerPort: 9090
+      volumes:
+      - name: prometheus-volume
+        persistentVolumeClaim:
+          claimName: prometheus-pvc
+      - name: prometheus-config-volume
+        persistentVolumeClaim:
+          claimName: prometheus-config-pvc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-pv
+spec:
+  capacity:
+    storage: 31Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /disk01/promethus/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - luckytree-study
+  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: promethus-pvc
+spec:
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 30Gi
+  volumeName: promethus-pv
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-config-pv
+spec:
+  capacity:
+    storage: 51Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /disk01/promethus/config/
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - luckytree-study
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: promethus-config-pvc
+spec:
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 50Mi
+  volumeName: promethus-config-pv
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: promethus-service
+spec:
+  type: NodePort
+  selector:
+    app: promethus
+  ports:
+  - port: 9090
+    targetPort: 9090
+    nodePort: 39090
+---
+
