@@ -111,3 +111,16 @@ spec:
   storageClassName: local-storage
   accessModes:
     - ReadWriteOnce
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teamcity
+spec:
+  type: NodePort
+  selector:
+    app: teamcity
+  ports:
+  - port: 8111
+    targetPort: 8111
+    nodePort: 30012
