@@ -87,7 +87,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /disk01/mysql_data
+    path: /disk01/teamcity/logs
   nodeAffinity:
     required:
       nodeSelectorTerms:
