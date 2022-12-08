@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teamcity
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: teamcity
+  template:
+    metadata:
+      labels:
+        app: teamcity
+    spec:
+      containers:
+      - name: teamcity
+        image: jetbrains/teamcity-server:2022.10
+        resources:
+          limits:
+            memory: "500Mi"
+        volumeMounts:
+        - mountPath: "/data/teamcity_server/datadir"
+          name: teamcity-data-volume
+        - mountPath: "/opt/teamcity/logs"
+          name: teamcity-log-volume
+        ports:
+        - containerPort: 8111
+        - containerPort: 8112
+      volumes:
+      - name: teamcity-data-volume
+        persistentVolumeClaim:
+          claimName: teamcity-data-pvc
+      - name: teamcity-log-volume
+        persistentVolumeClaim:
+          claimName: teamcity-log-pvc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: teamcity-data-pv
+spec:
+  capacity:
+    storage: 51Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /disk01/teamcity/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - luckytree-study
+  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: teamcity-data-pvc
+spec:
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 50Gi
+  volumeName: teamcity-data-pv
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: teamcity-log-pv
+spec:
+  capacity:
+    storage: 51Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /disk01/mysql_data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - luckytree-study
+  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: teamcity-log-pvc
+spec:
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 50Gi
+  volumeName: teamcity-log-pv
+  accessModes:
+    - ReadWriteOnce
