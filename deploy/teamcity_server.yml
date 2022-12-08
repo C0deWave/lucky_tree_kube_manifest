@@ -19,7 +19,7 @@ spec:
         image: jetbrains/teamcity-server:2022.10
         resources:
           limits:
-            memory: "500Mi"
+            memory: "2Gi"
         volumeMounts:
         - mountPath: "/data/teamcity_server/datadir"
           name: teamcity-data-volume
