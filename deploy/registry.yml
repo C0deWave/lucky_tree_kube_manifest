@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ReplicaSet
+metadata:
+  name: docker-registry
+  labels:
+    name: docker-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-registry
+  template:
+    metadata:
+      name: docker-registry
+      labels:
+        app: docker-registry
+    spec:
+      containers:
+        - name: docker-registry-web
+          image: hyper/docker-registry-web:v0.1.2
+          ports:
+            - containerPort: 8080
+          envFrom:
+          - configMapRef:
+              name: docker-registry-config
+        - name: docker-registry
+          image: registry:2.8.1
+          volumeMounts:
+          - mountPath: "/var/lib/registry"
+            name: regstry-data
+          ports:
+            - containerPort: 5000
+          resources:
+            limits:
+              memory: "500Mi"
+      volumes:
+      - name : regstry-data
+        hostPath:
+          path: /disk01/docker-regstry
+          type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docker-registry-config
+data:
+  REGISTRY_NAME: luckytree:5000
+  REGISTRY_URL: http://localhost:5000/v2
