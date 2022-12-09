@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: ReplicationController
+metadata:
+  name: teamcity-agnet
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: teamcity-agnet
+  template:
+    metadata:
+      name: teamcity-agnet
+      labels:
+        app: teamcity-agnet
+    spec:
+      containers:
+        - name: teamcity-agnet
+          image: localhost:30016/luckytree-teamcity-agent:0.1
+          securityContext:
+            allowPrivilegeEscalation: false
+          envFrom:
+          - configMapRef:
+              name: teamcity-agnet-config
+      volumes:
+      - name : docker-socket
+        hostPath:
+          path: /var/run/docker
+          type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: teamcity-agnet-config
+data:
+  name: "luckytree-teamcity-agent"
+  JAVA_HOME: "/opt/java/openjdk"
+  JRE_HOME: "/opt/java/jdk-11.0.2"
+  DOCKER_IN_DOCKER: start
+
+# -v docker_volumes:/var/lib/docker
+# --privileged
+# -e DOCKER_IN_DOCKER=start 
