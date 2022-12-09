@@ -21,6 +21,9 @@ spec:
           envFrom:
           - configMapRef:
               name: teamcity-agnet-config
+          resources:
+            limits:
+              memory: "1Gi"
       volumes:
       - name : docker-socket
         hostPath:
