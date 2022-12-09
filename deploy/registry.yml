@@ -25,7 +25,7 @@ spec:
               name: docker-registry-config
           resources:
             limits:
-              memory: "500Mi"
+              memory: "1Gi"
         - name: docker-registry
           image: registry:2.8.1
           volumeMounts:
