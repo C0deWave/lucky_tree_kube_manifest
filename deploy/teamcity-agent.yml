@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: ReplicationController
+kind: ReplicaSet
 metadata:
   name: teamcity-agnet
 spec:
