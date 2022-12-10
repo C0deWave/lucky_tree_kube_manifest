@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rabbitmq
+  labels:
+    name: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: rabbitmq
+  template:
+    metadata:
+      name: rabbitmq
+      labels:
+        name: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.11.4
+          ports:
+            - containerPort: 15672
+          envFrom:
+          - configMapRef:
+              name: rabbitmq-config
+          resources:
+            limits:
+              memory: "2Gi"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+data:
+  RABBITMQ_DEFAULT_USER: luckytree
+ 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+spec:
+  type: NodePort
+  selector:
+    name: rabbitmq
+  ports:
+  - port: 15672
+    targetPort: 15672
+    nodePort: 30020
