@@ -24,6 +24,12 @@ spec:
           envFrom:
           - configMapRef:
               name: rabbitmq-config
+          env:
+            - name:  rabbitmq secret
+              valueFrom:
+                secretKeyRef:
+                  name:  rabbitmq-pass-secret
+                  key:  RABBITMQ_DEFAULT_PASS
           resources:
             limits:
               memory: "2Gi"
