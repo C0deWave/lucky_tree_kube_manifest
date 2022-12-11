@@ -17,7 +17,7 @@ spec:
         - name: teamcity-agnet
           image: localhost:30016/luckytree-teamcity-agent:0.1
           securityContext:
-            allowPrivilegeEscalation: false
+            allowPrivilegeEscalation: true
           envFrom:
           - configMapRef:
               name: teamcity-agnet-config
