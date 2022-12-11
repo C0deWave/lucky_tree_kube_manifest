@@ -10,7 +10,7 @@ spec:
     image: grafana/grafana:9.2.6
     resources:
       limits:
-        memory: "30Gi"
+        memory: "125Mi"
         cpu: "500m"
     ports:
       - containerPort: 8080
