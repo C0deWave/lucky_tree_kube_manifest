@@ -25,12 +25,12 @@ spec:
             limits:
               memory: "1.5Gi"
           volumeMounts:
-          - mountPath: /var/lib/docker
+          - mountPath: /var/run/docker.sock
             name: docker-socket
       volumes:
       - name : docker-socket
         hostPath:
-          path: /var/run/docker
+          path: /var/run/containerd/containerd.sock
           type: DirectoryOrCreate
 ---
 apiVersion: v1
