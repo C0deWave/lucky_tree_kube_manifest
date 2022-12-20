@@ -20,7 +20,7 @@ spec:
           image: adminer:4.8.1  
           resources:
             limits:
-              memory: "500Mi"
+              memory: "200Mi"
           ports:
             - containerPort: 8080
 ---

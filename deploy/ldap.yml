@@ -54,7 +54,7 @@ spec:
         tty: true
         resources:
           limits:
-            memory: "500Mi"
+            memory: "400Mi"
         volumeMounts:
         - mountPath: "/var/lib/ldap"
           name: ldapdata-volume

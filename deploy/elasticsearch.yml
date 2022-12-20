@@ -35,7 +35,7 @@ spec:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
         resources:
           limits:
-            memory: "5Gi"
+            memory: "2Gi"
         envFrom:
         - configMapRef:
             name: elasticsearch-config
