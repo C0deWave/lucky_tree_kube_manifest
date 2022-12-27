@@ -137,3 +137,27 @@ spec:
   - port: 8112
     targetPort: 8112
     nodePort: 30025
+---
+# https://kubernetes.io/docs/concepts/services-networking/ingress/
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: teamcity-ingress-ssl
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - teamcity.c0dewave.com
+    secretName: secret-https
+  rules:
+  - host: teamcity.c0dewave.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: teamcity
+            port:
+              number: 8111
+---
