@@ -27,7 +27,7 @@ spec:
                 key:  SUDO_PASSWORD
         envFrom:
         - configMapRef:
-            key: code-server-env
+            name: code-server-env
         # resources:
         #   limits:
         #     memory: "128Mi"
