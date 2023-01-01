@@ -56,8 +56,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-      nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth/auth"
-      nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth/start?rd=$escaped_request_uri"
+      kubernetes.io/ingress.class: "nginx"
+      nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+      nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
   name: code-server-ingress-ssl
 spec:
   ingressClassName: nginx
@@ -76,3 +77,87 @@ spec:
             name: code-server
             port:
               number: 8443
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: oauth2-codeserver-proxy
+  name: oauth2-codeserver-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: oauth2-codeserver-proxy
+  template:
+    metadata:
+      labels:
+        k8s-app: oauth2-codeserver-proxy
+    spec:
+      containers:
+      - args:
+        - --provider=github
+        - --github-org=lucky-treee
+        - --email-domain=*
+        - --upstream=file:///dev/null
+        - --http-address=0.0.0.0:4180
+        - --cookie-secure=false
+        env:
+          - name:  OAUTH2_PROXY_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name:  git-codeserver-secret
+                key:  OAUTH2_PROXY_CLIENT_ID
+          - name:  OAUTH2_PROXY_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name:  git-codeserver-secret
+                key:  OAUTH2_PROXY_CLIENT_SECRET
+          - name:  OAUTH2_PROXY_COOKIE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name:  git-codeserver-secret
+                key:  OAUTH2_PROXY_COOKIE_SECRET
+        image: quay.io/oauth2-proxy/oauth2-proxy:v7.2.1
+        imagePullPolicy: Always
+        name: oauth2-proxy
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: oauth2-codeserver-proxy
+  name: oauth2-codeserver-proxy
+spec:
+  ports:
+  - name: http
+    port: 4180
+    protocol: TCP
+    targetPort: 4180
+  selector:
+    k8s-app: oauth2-codeserver-proxy
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oauth2-codeserver-proxy
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: code.c0dewave.com
+    http:
+      paths:
+      - path: /oauth2
+        pathType: Prefix
+        backend:
+          service:
+            name: oauth2-codeserver-proxy
+            port:
+              number: 4180
+  tls:
+  - hosts:
+    - code.c0dewave.com
+    secretName: secret-https
