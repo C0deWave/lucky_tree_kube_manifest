@@ -27,7 +27,7 @@ spec:
           volumeMounts:
           - mountPath: /var/run/docker.sock
             name: docker-socket
-          - mountPath: /opt/buildagent
+          - mountPath: /opt/buildagent/temp
             name: opt-folder
       volumes:
       - name : docker-socket
@@ -36,7 +36,7 @@ spec:
           type: Socket
       - name : opt-folder
         hostPath:
-          path: /opt/buildagent
+          path: /opt/buildagent/temp
           type: DirectoryOrCreate
 ---
 apiVersion: v1
