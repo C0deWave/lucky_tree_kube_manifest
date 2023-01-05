@@ -88,7 +88,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: oauth2-codeserver-proxy
+      k8s-app: "oauth2-codeserver-proxy"
   template:
     metadata:
       labels:
