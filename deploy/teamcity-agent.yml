@@ -31,8 +31,8 @@ spec:
             name: opt-folder-temp
           - mountPath: /opt/buildagent/work
             name: opt-folder-work
-          - mountPath: /opt/buildagent/lib
-            name: opt-folder-lib
+          # - mountPath: /opt/buildagent/lib
+          #   name: opt-folder-lib
           - mountPath: /opt/buildagent/tools
             name: opt-folder-tools
           - mountPath: /opt/buildagent/plugins
@@ -52,10 +52,10 @@ spec:
         hostPath:
           path: /opt/buildagent/work
           type: DirectoryOrCreate
-      - name : opt-folder-lib
-        hostPath:
-          path: /opt/buildagent/lib
-          type: DirectoryOrCreate
+      # - name : opt-folder-lib
+      #   hostPath:
+      #     path: /opt/buildagent/lib
+      #     type: DirectoryOrCreate
       - name : opt-folder-tools
         hostPath:
           path: /opt/buildagent/tools
