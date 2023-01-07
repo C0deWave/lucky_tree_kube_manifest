@@ -68,13 +68,121 @@ kind: Service
 metadata:
   name: docker-registry-service
 spec:
-  type: NodePort
   selector:
     name: docker-registry
   ports:
   - port: 5000
-    nodePort: 30016
     targetPort: 5000
-
+---
+# https://kubernetes.io/docs/concepts/services-networking/ingress/
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+      kubernetes.io/ingress.class: "nginx"
+      nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+      nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+  name: registry-ingress-ssl
+spec:
+  ingressClassName: "nginx"
+  tls:
+  - hosts:
+    - registry.c0dewave.com
+    secretName: secret-https
+  rules:
+  - host: registry.c0dewave.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: docker-registry-web-service
+            port:
+              number: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: oauth2-proxy-registry
+  name: oauth2-proxy-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: "oauth2-proxy-registry"
+  template:
+    metadata:
+      labels:
+        k8s-app: oauth2-proxy-registry
+    spec:
+      containers:
+      - args:
+        - --provider=github
+        - --github-org=lucky-treee
+        - --email-domain=*
+        - --upstream=file:///dev/null
+        - --http-address=0.0.0.0:4180
+        - --cookie-secure=false
+        env:
+          - name:  OAUTH2_PROXY_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name:  git-registry-secret
+                key:  OAUTH2_PROXY_CLIENT_ID
+          - name:  OAUTH2_PROXY_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name:  git-registry-secret
+                key:  OAUTH2_PROXY_CLIENT_SECRET
+          - name:  OAUTH2_PROXY_COOKIE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name:  git-registry-secret
+                key:  OAUTH2_PROXY_COOKIE_SECRET
+        image: quay.io/oauth2-proxy/oauth2-proxy:v7.2.1
+        imagePullPolicy: Always
+        name: oauth2-proxy-registry
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: oauth2-proxy-registry
+  name: oauth2-proxy-registry
+spec:
+  ports:
+  - name: http
+    port: 4180
+    protocol: TCP
+    targetPort: 4180
+  selector:
+    k8s-app: oauth2-proxy-registry
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oauth2-proxy-registry
+spec:
+  ingressClassName: "nginx"
+  rules:
+  - host: registry.c0dewave.com
+    http:
+      paths:
+      - path: /oauth2
+        pathType: Prefix
+        backend:
+          service:
+            name: oauth2-proxy-registry
+            port:
+              number: 4180
+  tls:
+  - hosts:
+    - registry.c0dewave.com
+    secretName: secret-https
       
   
