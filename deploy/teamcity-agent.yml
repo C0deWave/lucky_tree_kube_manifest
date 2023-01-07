@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: teamcity-agnet
-          image: localhost:30016/luckytree-teamcity-agent:0.2
+          image: localhost:30016/luckytree-teamcity-agent:0.4
           securityContext:
             allowPrivilegeEscalation: true
           envFrom:
