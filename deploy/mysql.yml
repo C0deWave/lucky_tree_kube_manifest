@@ -88,4 +88,23 @@ spec:
   - port: 3306
     targetPort: 3306
     nodePort: 30001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+      kubernetes.io/ingress.class: "nginx"
+      ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/server-alias: mysql.c0dewave.com
+  name: mysql-ingress
+spec:
+  rules:
+  - host: mysql.c0dewave.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          serviceName: mysql-service
+          servicePort: 3306
     
